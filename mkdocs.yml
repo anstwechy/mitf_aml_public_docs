@@ -55,38 +55,40 @@ theme:
   name: material
   language: en
   font:
-    text: Source Sans 3
-    code: IBM Plex Mono
+    text: Plus Jakarta Sans
+    code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: indigo
-      accent: teal
+      accent: cyan
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: indigo
-      accent: teal
+      accent: cyan
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
   features:
+    # Sidebar-first: no top tab bar; nested nav in the drawer reads as a tree
     - navigation.expand
     - navigation.sections
     - navigation.path
     - navigation.top
     - navigation.footer
-    - navigation.tabs
-    - navigation.tabs.sticky
     - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
     - search.suggest
     - search.highlight
     - search.share
     - content.code.copy
     - content.action.edit
     - content.tooltips
+    - toc.integrate
     - toc.follow
 
 markdown_extensions:
