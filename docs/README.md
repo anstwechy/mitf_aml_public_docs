@@ -1,12 +1,27 @@
-# FlowGuard — what we built
+# 🛡️ FlowGuard — what we built
 
 **FlowGuard** is a full-stack **AML transaction monitoring and case-management platform**: high-throughput screening, institution-tuned rules, statistical and ML-assisted detection, **fraud review** paths, and a single **AML Portal** where analysts work alerts and cases end to end. It is built to run **multi-tenant** (per-bank isolation), **queue-first** at scale (RabbitMQ + MassTransit), and **operationally observable** (metrics, logs, traces) in real environments.
+{: .flow-lead}
+
+<p class="flow-glow-line">Screen at scale. Stay audit-ready. Ship with confidence.</p>
+
+<p>
+  <span class="flow-pill">Multi-tenant</span>
+  <span class="flow-pill">Queue-first</span>
+  <span class="flow-pill">Observable by design</span>
+</p>
+
+!!! success "The one-liner"
+    **From the first message on the bus to the last signature in the case file** — one spine, one portal, one story auditors can follow.
 
 This site is the **canonical technical documentation** for FlowGuard — **owned and shipped by [Masarat](./masarat.md)** alongside the platform code and deployment manifests. When behaviour or interfaces change, the docs move in the **same change set** as the product.
 
-### System map (who talks to what)
+!!! note "For readers in a hurry"
+    Start with [**Architecture**](./ARCHITECTURE.md) for the system picture, or jump to [**Backend integration**](./BACKEND-INTEGRATION-GUIDE.md) if you are wiring producers. Stuck on **keys or quotas**? See [**Tenant & ingestion keys**](./TENANT_INGESTION_KEYS.md).
 
-High-level view: **ingest** scales on the **broker and Analyzer**; **cases and users** stay on the **shared Management** plane and **AML Portal**. Detail: [ARCHITECTURE.md](ARCHITECTURE.md).
+## 🗺️ System map (who talks to what)
+
+High-level view: **ingest** scales on the **broker and Analyzer**; **cases and users** stay on the **shared Management** plane and **AML Portal**. Deep dive: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```mermaid
 flowchart TB
@@ -35,7 +50,7 @@ flowchart TB
 
 ---
 
-### At a glance — platform powers
+## ✨ At a glance — platform powers
 
 | Capability | What it means in practice |
 |------------|---------------------------|
@@ -47,7 +62,7 @@ flowchart TB
 
 ---
 
-### How this documentation is organised
+## 📚 How this documentation is organised
 
 Structure follows [Diátaxis](https://diataxis.fr/) (tutorial / how-to / reference / explanation). The table below is the full map; there is no separate file index so we do not duplicate links.
 
@@ -59,7 +74,7 @@ Structure follows [Diátaxis](https://diataxis.fr/) (tutorial / how-to / referen
 | **Explanation** | [ARCHITECTURE.md](ARCHITECTURE.md), [masarat.md](masarat.md), [bank/README.md](bank/README.md) (executive, governance, compliance, procurement), [ML_DETECTION_ENHANCEMENTS.md](ML_DETECTION_ENHANCEMENTS.md), [ML_WALLET_ROADMAP.md](ML_WALLET_ROADMAP.md) | System design, **Masarat** (ownership & operations), business stakeholders, ML |
 | **Masarat (platform owner)** | [masarat.md](./masarat.md) → [bank/governance — §2](./bank/governance-and-operations.md#2-operating-authority) | Product ownership, platform operations, integration contracts, support model |
 
-## Audience entry points
+## 👤 Audience entry points
 
 | Audience | Start here |
 |----------|------------|
@@ -70,7 +85,7 @@ Structure follows [Diátaxis](https://diataxis.fr/) (tutorial / how-to / referen
 | **Release engineering** | [team-runbooks/deployment-runbook.md](team-runbooks/deployment-runbook.md) → `deployment/QUICK-START.md` in the [platform](#related-material-outside-the-docs-repository) repository |
 | **Executives, compliance, Masarat + bank leadership** | [masarat.md](./masarat.md), [bank/README.md](./bank/README.md) |
 
-## Related material outside the docs repository
+## 🔗 Related material outside the docs repository
 
 This site is **documentation only**. The FlowGuard **application**, `deployment/`, and `src/` live in a separate **platform** clone (the product repository you build and run from source).
 

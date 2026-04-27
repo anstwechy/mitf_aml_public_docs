@@ -1,17 +1,25 @@
-# Masarat — the team behind the platform
+# 🏢 Masarat — the team behind the platform
 
-**Masarat (Masarat Technology)** is the **product owner**, **primary engineering organisation**, and **default platform operator** for **FlowGuard** — the AML transaction monitoring and case-management stack documented here. We did not just ship a feature list: we own **roadmap, codebase quality, integration contracts, and how the system runs in production** so banks get a product that is **defensible, integrable, and operable**. **Governance, legal liability, and commercial terms** for any given bank are still defined in **contract** and in [bank/governance-and-operations.md](./bank/governance-and-operations.md#2-operating-authority) — this page is the capability story, not the legal schedule.
+**Masarat (Masarat Technology)** is the **product owner**, **primary engineering organisation**, and **default platform operator** for **FlowGuard** — the AML transaction monitoring and case-management stack documented here. We did not just ship a feature list: we own **roadmap, codebase quality, integration contracts, and how the system runs in production** so banks get a product that is **defensible, integrable, and operable**.
+{: .flow-lead}
 
-## What we own
+**Governance, legal liability, and commercial terms** for any given bank are still defined in **contract** and in [bank/governance-and-operations.md](./bank/governance-and-operations.md#2-operating-authority) — this page is the capability story, not the legal schedule.
+
+<p class="flow-glow-line">We ship the rails. You run the policy.</p>
+
+!!! tip "Why teams work with us"
+    **Clarity at the boundary** — contracts, integration guides, and runbooks line up with what the binaries actually do in prod.
+
+## 📋 What we own
 
 | Area | What we bring |
-|------|----------------|
+|------|---------------|
 | **Product** | We steer FlowGuard’s direction: **AML screening**, **cases**, **fraud review** flows, **reporting**, **subscription and ingestion** features — and we align major roadmap themes and releases with what institutions actually need in production. |
 | **Codebase** | We maintain the **canonical source** and **versioned releases**; change history and engineering discipline are **Masarat-led** unless a rare engagement says otherwise. |
 | **Quality** | We set the bar for **tests**, code standards, and security-related fixes, coordinated with the [security runbook](./team-runbooks/security-runbook.md) — the platform is built to be **extended without breaking the core**. |
 | **Documentation** | We keep this **docs** corpus as the **single source of truth** next to the code; when behaviour or APIs move, the docs **move with them**. |
 
-## The integration surface we stand behind
+## 🔌 The integration surface we stand behind
 
 We **define, document, and maintain** the contracts that let external systems talk to FlowGuard with confidence:
 
@@ -21,7 +29,7 @@ We **define, document, and maintain** the contracts that let external systems ta
 
 Banks and integrators **consume** these contracts. They do not **own** the product specification of the platform — that stays with us so the product stays **coherent and evolvable**.
 
-## How we run it (default model)
+## 🛰️ How we run it (default model)
 
 In production, **Masarat** typically holds **operating authority** for the **service** — the model banks buy when they want a **managed platform**, not a tarball:
 
@@ -32,15 +40,15 @@ In production, **Masarat** typically holds **operating authority** for the **ser
 
 **Banks** stay responsible for **getting data in reliably**, **users and policy** on that data, **client-side** custody of ingestion credentials, and **regulatory** programme work — not for operating our core product stack as a DIY science project.
 
-## Security and trust
+## 🔐 Security and trust
 
 We hold the line on **service security** as agreed: **hardening** the deployed stack, **operational secret rotation**, **vulnerability** handling for the product, and **evidence** (e.g. pen-test, SOC materials) when the contract requires. **Network edge**, **end-user identity governance**, and **outsourcing oversight** on the **bank** side remain with the **institution** — the split is clear and documented so audits have a map.
 
-## Commercial interface
+## 💼 Commercial interface
 
 **SLAs, credits, support hours, and escalations** live in the **contract**, not in this repository. [bank/vendor-procurement-guide.md](./bank/vendor-procurement-guide.md) frames how procurement talks to the **technical** reality. This repo is for **build, run, and align** — not for pricing.
 
-## Read next
+## 📌 Read next
 
 | Topic | Link |
 |--------|------|
