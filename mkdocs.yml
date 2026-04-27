@@ -60,14 +60,14 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: blue grey
+      primary: indigo
       accent: teal
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: blue grey
+      primary: indigo
       accent: teal
       toggle:
         icon: material/brightness-4
@@ -96,12 +96,12 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.superfences:
-      # div.mermaid (fence_div_format): Material for MkDocs only hooks Mermaid on divs, not
-      # pre.mermaid+code (fence_code_format). See: https://squidfunk.github.io/mkdocs-material/reference/diagrams/
+      # Use mermaid2's div fence (not Material "custom" pre/code). The _custom fence only
+      # sets window.mermaidConfig with startOnLoad:false and never calls mermaid.run — diagrams stay blank.
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_div_format
+          format: !!python/name:mermaid2.fence_mermaid
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
@@ -132,3 +132,11 @@ strict: false
 
 plugins:
   - search
+  - mermaid2:
+      version: "10.4.0"
+      # Vendored under docs/javascripts/ so `mkdocs build --strict` works without hitting unpkg at build time (and CI is deterministic).
+      javascript: javascripts/mermaid.min.js
+      arguments:
+        startOnLoad: true
+        securityLevel: loose
+        theme: default
