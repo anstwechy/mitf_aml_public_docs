@@ -33,7 +33,7 @@ Repository layout for these services is under `src/Applications/` (hosts), `src/
 flowchart LR
   subgraph ingest [Ingestion]
     P[Producer / Adapter]
-    Q[(RabbitMQ\naml.transactions)]
+    Q[(RabbitMQ<br/>aml.transactions)]
   end
   subgraph analyze [Analysis]
     A[FlowGuard.Analyzer]

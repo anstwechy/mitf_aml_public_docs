@@ -96,10 +96,12 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.superfences:
+      # div.mermaid (fence_div_format): Material for MkDocs only hooks Mermaid on divs, not
+      # pre.mermaid+code (fence_code_format). See: https://squidfunk.github.io/mkdocs-material/reference/diagrams/
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format: !!python/name:pymdownx.superfences.fence_div_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
