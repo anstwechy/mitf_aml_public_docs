@@ -11,4 +11,5 @@
 - Published site and canonical Git remote for this project: `https://anstwechy.github.io/mitf_aml_public_docs/` and `https://github.com/anstwechy/mitf_aml_public_docs`.
 - Mermaid: `pymdownx.superfences` `custom_fences` with `format: !!python/name:pymdownx.superfences.fence_code_format` (yields `pre`/`code.mermaid`); Material’s JavaScript bundle loads and runs Mermaid — avoid vendored `mermaid.min.js` unless customizing.
 - `mkdocs.yml` includes `validation` for links and nav, and uses `edit_uri: edit/main/docs/` for GitHub “edit” links.
+- Navigation: sidebar-first (no `navigation.tabs`); **do not** use `toc.integrate` if the left nav feels crowded—keep the page table of contents in the **right** column on wide screens. Theme: **deep purple** + **amber** accent, **DM Sans** body, custom `docs/stylesheets/extra.css`.
 - This repository is documentation-only: references to the FlowGuard platform codebase should use backtick paths, not `../../src/...` links that cannot resolve here.

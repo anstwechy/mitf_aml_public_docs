@@ -55,20 +55,20 @@ theme:
   name: material
   language: en
   font:
-    text: Plus Jakarta Sans
+    text: DM Sans
     code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: cyan
+      primary: deep purple
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: cyan
+      primary: deep purple
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -88,7 +88,6 @@ theme:
     - content.code.copy
     - content.action.edit
     - content.tooltips
-    - toc.integrate
     - toc.follow
 
 markdown_extensions:

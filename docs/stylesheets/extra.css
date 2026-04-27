@@ -1,65 +1,71 @@
-/* FlowGuard — modern sidebar-first docs (Material + motion, reduced-motion safe) */
+/* FlowGuard — deep purple + amber, sidebar tree nav, right-side TOC (no toc.integrate) */
 
-/* ----- Motion tokens (override in prefers-reduced-motion) ----- */
 :root {
   --flow-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --flow-dur: 0.45s;
-  --flow-dur-fast: 0.2s;
-  --flow-glow: rgba(6, 182, 212, 0.35);
+  --flow-dur: 0.4s;
+  --flow-dur-fast: 0.18s;
+  /* Wider primary drawer = clearer tree (Material variable) */
+  --md-sidebar-width: 17.25rem;
 }
 
-/* ----- Light: richer surfaces, subtle mesh feel ----- */
+/* ----- Light ----- */
 [data-md-color-scheme="default"] {
-  --flow-surface-0: #eef2ff;
+  --flow-surface-0: #f5f3ff;
   --flow-surface-1: #ffffff;
-  --flow-ink: #0f172a;
-  --flow-ink-muted: #475569;
-  --flow-border: #c7d2fe;
-  --flow-link: #0891b2;
-  --flow-link-hover: #0e7490;
-  --flow-side-bg: color-mix(in srgb, #ffffff 88%, #e0e7ff 12%);
+  --flow-ink: #1e1b4b;
+  --flow-ink-muted: #5b5f75;
+  --flow-border: #ddd6fe;
+  --flow-link: #7c3aed;
+  --flow-link-hover: #6d28d9;
+  --flow-side-bg: color-mix(in srgb, #faf5ff 92%, #ffffff 8%);
+  --flow-tree-line: color-mix(in srgb, #7c3aed 28%, #c4b5fd 72%);
+  --flow-pill-bg: color-mix(in srgb, #f59e0b 12%, #f5f3ff 88%);
+  --flow-glow: rgba(124, 58, 237, 0.22);
   --md-default-fg-color: var(--flow-ink);
   --md-default-fg-color--light: var(--flow-ink-muted);
-  --md-default-fg-color--lighter: #64748b;
+  --md-default-fg-color--lighter: #6b6f82;
   --md-typeset-a-color: var(--flow-link);
-  --md-code-bg-color: #eef2ff;
-  --md-code-fg-color: #1e1b4b;
-  --md-code-hl-color: rgba(6, 182, 212, 0.18);
+  --md-code-bg-color: #f3e8ff;
+  --md-code-fg-color: #4c1d95;
+  --md-code-hl-color: rgba(245, 158, 11, 0.2);
   --md-typeset-color: var(--flow-ink);
   color-scheme: light;
 }
 
-/* ----- Dark: deep ink + teal accent strips ----- */
+/* ----- Dark (slate + purple) ----- */
 [data-md-color-scheme="slate"] {
-  --flow-surface-0: #020617;
-  --flow-surface-1: #0f172a;
-  --flow-ink: #f1f5f9;
-  --flow-ink-muted: #94a3b8;
-  --flow-border: #334155;
-  --flow-link: #22d3ee;
-  --flow-link-hover: #67e8f9;
-  --flow-side-bg: color-mix(in srgb, #0f172a 92%, #164e63 8%);
+  --flow-surface-0: #0c0a18;
+  --flow-surface-1: #14122a;
+  --flow-ink: #f5f3ff;
+  --flow-ink-muted: #a5a0c8;
+  --flow-border: #312e4a;
+  --flow-link: #c4b5fd;
+  --flow-link-hover: #e9d5ff;
+  --flow-side-bg: color-mix(in srgb, #1a1530 94%, #2e1065 6%);
+  --flow-tree-line: color-mix(in srgb, #a78bfa 40%, #4c1d95 60%);
+  --flow-pill-bg: color-mix(in srgb, #f59e0b 16%, #1e1b2e 84%);
+  --flow-glow: rgba(167, 139, 250, 0.28);
   --md-default-fg-color: var(--flow-ink);
   --md-default-fg-color--light: var(--flow-ink-muted);
-  --md-default-fg-color--lighter: #64748b;
+  --md-default-fg-color--lighter: #8b86a8;
   --md-typeset-a-color: var(--flow-link);
-  --md-code-bg-color: #1e293b;
-  --md-code-fg-color: #ecfeff;
-  --md-code-hl-color: rgba(34, 211, 238, 0.15);
-  --md-typeset-color: #e2e8f0;
+  --md-code-bg-color: #1e1a33;
+  --md-code-fg-color: #f5e9ff;
+  --md-code-hl-color: rgba(251, 191, 36, 0.12);
+  --md-typeset-color: #e8e4f5;
   color-scheme: dark;
 }
 
-/* ----- Page: animated soft gradient (slow, low contrast) ----- */
+/* Canvas */
 .md-container {
   position: relative;
+  min-height: 100vh;
   background: linear-gradient(
-    160deg,
+    145deg,
     var(--flow-surface-0) 0%,
-    var(--md-default-bg-color) 40%,
+    var(--md-default-bg-color) 50%,
     var(--md-default-bg-color) 100%
   );
-  min-height: 100vh;
 }
 
 .md-container::before {
@@ -68,30 +74,29 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.5;
   background:
-    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(99, 102, 241, 0.12), transparent 55%),
-    radial-gradient(ellipse 70% 45% at 100% 10%, rgba(6, 182, 212, 0.1), transparent 50%);
-  animation: flowMesh 18s ease-in-out infinite alternate;
+    radial-gradient(ellipse 90% 55% at 0% 0%, rgba(124, 58, 237, 0.11), transparent 55%),
+    radial-gradient(ellipse 75% 50% at 100% 0%, rgba(245, 158, 11, 0.08), transparent 50%);
+  animation: flowMesh 20s ease-in-out infinite alternate;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .md-container::before {
     animation: none;
-    opacity: 0.4;
+    opacity: 0.42;
   }
 }
 
 @keyframes flowMesh {
-  0% {
-    filter: hue-rotate(0deg) opacity(0.5);
+  from {
+    filter: hue-rotate(-2deg) opacity(0.45);
   }
-  100% {
-    filter: hue-rotate(12deg) opacity(0.65);
+  to {
+    filter: hue-rotate(6deg) opacity(0.58);
   }
 }
 
-/* Stack content above background wash */
 .md-header,
 .md-main,
 .md-dialog,
@@ -100,28 +105,22 @@
   z-index: 1;
 }
 
-/* ----- Header: glass + bottom glow ----- */
+/* Header */
 .md-header {
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  backdrop-filter: blur(16px) saturate(1.2);
-  background: color-mix(in srgb, var(--md-default-bg-color) 78%, transparent) !important;
-  box-shadow:
-    0 1px 0 rgba(15, 23, 42, 0.06),
-    0 8px 32px -12px var(--flow-glow);
-  border-bottom: 1px solid color-mix(in srgb, var(--flow-border) 65%, transparent);
-  transition: box-shadow var(--flow-dur-fast) var(--flow-ease);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  background: color-mix(in srgb, var(--md-default-bg-color) 82%, transparent) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--flow-border) 75%, transparent);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.05);
 }
 
 [data-md-color-scheme="slate"] .md-header {
-  box-shadow:
-    0 1px 0 rgba(148, 163, 184, 0.1),
-    0 0 40px -20px rgba(34, 211, 238, 0.25);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--flow-border) 50%, transparent);
 }
 
-/* Site title: subtle sheen on hover (header button) */
 .md-header__title {
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   transition: color var(--flow-dur-fast) var(--flow-ease);
 }
 
@@ -129,90 +128,93 @@
   color: var(--md-accent-fg-color);
 }
 
-/* No top tab bar: hide any stray tabs wrapper if present */
+/* Hide any legacy tab strip */
 .md-tabs,
 .md-tabs__inner {
   display: none;
 }
 
-/* ----- Primary sidebar: tree-style nav (glass + rail) ----- */
+/* ----- Primary sidebar: scroll + tree (no per-link left borders) ----- */
 .md-sidebar--primary {
-  -webkit-backdrop-filter: blur(20px) saturate(1.15);
-  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  backdrop-filter: blur(16px) saturate(1.1);
   background: var(--flow-side-bg) !important;
-  border-right: 1px solid color-mix(in srgb, var(--flow-border) 80%, transparent);
-  box-shadow: 4px 0 24px -8px rgba(15, 23, 42, 0.08);
+  border-right: 1px solid color-mix(in srgb, var(--flow-border) 85%, transparent);
 }
 
-[data-md-color-scheme="slate"] .md-sidebar--primary {
-  box-shadow: 4px 0 32px -12px rgba(0, 0, 0, 0.45);
+.md-sidebar__scrollwrap {
+  scrollbar-color: var(--flow-tree-line) transparent;
 }
 
-/* Scrollable nav area */
-.md-sidebar--primary .md-nav {
-  margin-inline: 0.35rem 0.15rem;
-  padding-right: 0.25rem;
+.md-sidebar--primary .md-nav--primary {
+  margin: 0.25rem 0.2rem 1rem 0.35rem;
+  padding-bottom: 0.75rem;
 }
 
-/* Tree rail for nested items */
-.md-nav__item--nested > .md-nav__link,
-.md-nav__item--nested > .md-nav__container > .md-nav__link {
-  position: relative;
-  border-left: 2px solid color-mix(in srgb, var(--flow-border) 70%, transparent);
-  margin-left: 0.2rem;
-  padding-left: 0.6rem;
-  border-radius: 0 0.25rem 0.25rem 0;
+/* Vertical tree line lives on nested NAV blocks, not on links (fixes toggle/label glitches) */
+.md-sidebar--primary .md-nav .md-nav {
+  margin: 0.1rem 0 0.35rem 0.35rem;
+  padding: 0.15rem 0 0.2rem 0.65rem;
+  border-left: 2px solid var(--flow-tree-line);
+  border-radius: 0 0 0 0.2rem;
+}
+
+/* All nav links: pill hit area, no transform on label (avoids jank) */
+.md-sidebar--primary .md-nav__link {
+  display: block;
+  border-radius: 0.4rem;
+  margin: 0.1rem 0;
+  padding: 0.35rem 0.5rem 0.35rem 0.5rem;
+  font-weight: 500;
+  line-height: 1.35;
   transition:
     color var(--flow-dur-fast) var(--flow-ease),
-    border-color var(--flow-dur-fast) var(--flow-ease),
     background var(--flow-dur-fast) var(--flow-ease),
-    transform var(--flow-dur-fast) var(--flow-ease);
+    box-shadow var(--flow-dur-fast) var(--flow-ease);
 }
 
-.md-nav__item--nested .md-nav--secondary .md-nav__item--nested .md-nav__link {
-  border-left-color: color-mix(in srgb, var(--md-typeset-a-color) 45%, var(--flow-border) 55%);
+.md-sidebar--primary a.md-nav__link {
+  -webkit-tap-highlight-color: transparent;
 }
 
-.md-nav__item .md-nav__link--active,
-.md-nav__item .md-nav__link--active:focus {
+/* Parent / section row (label that toggles) — not page active state */
+.md-sidebar--primary label.md-nav__link {
   font-weight: 600;
-  border-left-color: var(--md-typeset-a-color) !important;
-  background: color-mix(in srgb, var(--md-typeset-a-color) 8%, transparent);
   color: var(--md-default-fg-color);
+  cursor: pointer;
 }
 
-.md-nav__link:hover {
-  color: var(--flow-link);
-  background: color-mix(in srgb, var(--md-typeset-a-color) 5%, transparent);
-  transform: translateX(1px);
+/* Current page */
+.md-sidebar--primary a.md-nav__link--active,
+.md-sidebar--primary a.md-nav__link--active:focus {
+  font-weight: 700;
+  color: var(--md-default-fg-color) !important;
+  background: var(--flow-pill-bg);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--md-typeset-a-color) 25%, transparent);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .md-nav__link:hover {
-    transform: none;
-  }
+.md-sidebar--primary a.md-nav__link:hover {
+  color: var(--flow-link-hover);
+  background: color-mix(in srgb, var(--md-typeset-a-color) 6%, var(--md-default-bg-color) 94%);
 }
 
-/* Section labels in nav */
-.md-nav__item--section > .md-nav__link,
-.md-nav__item--section > .md-nav__container .md-nav__link:first-child {
-  font-weight: 600;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--md-default-fg-color--light);
-  margin-top: 0.75rem;
-  padding-top: 0.35rem;
-  border-top: 1px solid color-mix(in srgb, var(--flow-border) 50%, transparent);
-  border-left: 0;
+.md-sidebar--primary label.md-nav__link:hover {
+  background: color-mix(in srgb, var(--md-typeset-a-color) 4%, transparent);
+  color: var(--flow-link-hover);
 }
 
-/* TOC (integrated) — subtle second column strip */
+/* Nested depth: slightly smaller type */
+.md-sidebar--primary .md-nav .md-nav .md-nav__link {
+  font-size: 0.9em;
+}
+
+/* Secondary nav (rare) — keep compact */
 .md-nav--secondary {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  opacity: 0.95;
 }
 
-/* ----- Main article: enter animation (instant nav friendly) ----- */
+/* Main content: subtle mount (instant nav) */
 .md-content {
   animation: flowContentIn var(--flow-dur) var(--flow-ease) both;
 }
@@ -220,7 +222,7 @@
 @keyframes flowContentIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -245,7 +247,7 @@
 .md-typeset a {
   font-weight: 500;
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration-color: color-mix(in srgb, currentColor 32%, transparent);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
   transition: color var(--flow-dur-fast) ease, text-decoration-color var(--flow-dur-fast) ease;
@@ -253,25 +255,22 @@
 
 .md-typeset a:hover {
   color: var(--flow-link-hover);
-  text-decoration-color: var(--flow-link);
+  text-decoration-color: var(--md-typeset-a-color);
 }
 
 .md-typeset h1 {
   font-weight: 800;
   letter-spacing: -0.035em;
-  line-height: 1.15;
-  color: var(--md-default-fg-color);
+  line-height: 1.2;
   border-bottom: none;
-  background: linear-gradient(120deg, var(--md-default-fg-color), var(--md-typeset-a-color));
+  background: linear-gradient(115deg, var(--md-default-fg-color) 0%, var(--md-typeset-a-color) 50%, #f59e0b 120%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   padding-bottom: 0.2em;
   margin-bottom: 1rem;
-  position: relative;
 }
 
-/* Fallback for browsers that clip wrong */
 @supports not (background-clip: text) {
   .md-typeset h1 {
     -webkit-text-fill-color: var(--md-default-fg-color);
@@ -285,28 +284,23 @@
   height: 3px;
   margin-top: 0.5rem;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--md-typeset-a-color), transparent 85%);
+  background: linear-gradient(90deg, #7c3aed, #f59e0b 75%, transparent);
   -webkit-text-fill-color: initial;
 }
 
 .md-typeset h2 {
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin-top: 1.75em;
+  margin-top: 1.6em;
   color: var(--md-default-fg-color);
   border-bottom: 1px solid var(--flow-border);
   padding-bottom: 0.3em;
-  transition: border-color var(--flow-dur-fast) ease;
-}
-
-.md-typeset h2:hover {
-  border-bottom-color: color-mix(in srgb, var(--md-typeset-a-color) 50%, var(--flow-border) 50%);
 }
 
 .md-typeset h3 {
   font-weight: 600;
   color: var(--md-default-fg-color);
-  margin-top: 1.5em;
+  margin-top: 1.4em;
 }
 
 .md-typeset h4,
@@ -316,22 +310,36 @@
   color: var(--md-default-fg-color--light);
 }
 
-/* Breadcrumb bar polish */
 .md-path {
   font-size: 0.8rem;
-  opacity: 0.95;
+  opacity: 0.9;
+}
+
+/* Right TOC: subtle card (when visible) */
+.md-nav--secondary .md-nav__title {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 0.35rem;
+}
+
+.md-nav--secondary .md-nav__link {
+  border-radius: 0.3rem;
+  margin: 0.05rem 0;
+  transition: color var(--flow-dur-fast) ease, background var(--flow-dur-fast) ease;
 }
 
 /* ----- Admonitions ----- */
 .md-typeset .admonition {
-  border-radius: 0.5rem;
+  border-radius: 0.55rem;
   border-width: 0 0 0 4px;
-  box-shadow: 0 4px 24px -6px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 24px -6px rgba(15, 23, 42, 0.1);
   transition: box-shadow var(--flow-dur-fast) ease, transform var(--flow-dur-fast) ease;
 }
 
 .md-typeset .admonition:hover {
-  box-shadow: 0 6px 28px -4px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 6px 28px -4px rgba(15, 23, 42, 0.14);
   transform: translateY(-1px);
 }
 
@@ -354,7 +362,7 @@
 .md-typeset .admonition.tip,
 .md-typeset .admonition.hint,
 .md-typeset .admonition.success {
-  border-left-color: #14b8a6;
+  border-left-color: #a78bfa;
 }
 
 .md-typeset .admonition.warning,
@@ -366,22 +374,21 @@
 .md-typeset .admonition.danger,
 .md-typeset .admonition.error,
 .md-typeset .admonition.failure {
-  border-left-color: #ef4444;
+  border-left-color: #f87171;
 }
 
-/* ----- Code ----- */
+/* Code */
 .md-typeset code {
   border-radius: 0.3em;
   padding: 0.12em 0.4em;
   font-size: 0.88em;
   font-weight: 500;
-  transition: background var(--flow-dur-fast) ease;
 }
 
 .md-typeset pre {
   border-radius: 0.5rem;
   border: 1px solid var(--flow-border);
-  box-shadow: 0 4px 20px -6px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 4px 20px -6px rgba(15, 23, 42, 0.08);
 }
 
 .md-typeset pre > code {
@@ -389,44 +396,43 @@
   box-shadow: none;
 }
 
-/* ----- Tables ----- */
+/* Tables */
 .md-typeset table:not([class]) {
   font-size: 0.9em;
   border-radius: 0.5rem;
   overflow: hidden;
   border: 1px solid var(--flow-border);
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .md-typeset table:not([class]) th {
-  background: linear-gradient(180deg, var(--md-code-bg-color) 0%, var(--flow-border) 200%);
+  background: linear-gradient(180deg, var(--md-code-bg-color) 0%, color-mix(in srgb, var(--flow-border) 80%, var(--md-code-bg-color) 20%) 180%);
   font-weight: 600;
   color: var(--md-default-fg-color);
   border-color: var(--flow-border);
 }
 
 .md-typeset table:not([class]) tr:nth-child(even) {
-  background-color: color-mix(in srgb, var(--md-code-bg-color) 35%, transparent);
+  background-color: color-mix(in srgb, var(--md-code-bg-color) 32%, transparent);
 }
 
 .md-typeset table:not([class]) td {
   border-color: var(--flow-border);
 }
 
-/* ----- Blockquote ----- */
+/* Blockquote */
 .md-typeset blockquote {
-  border-left: 4px solid #6366f1;
-  background: color-mix(in srgb, var(--md-code-bg-color) 50%, var(--md-default-bg-color));
+  border-left: 4px solid #7c3aed;
+  background: color-mix(in srgb, var(--md-code-bg-color) 45%, var(--md-default-bg-color) 55%);
   border-radius: 0 0.35rem 0.35rem 0;
   padding: 0.5rem 1rem;
   color: var(--md-default-fg-color--light);
 }
 
 [data-md-color-scheme="slate"] .md-typeset blockquote {
-  background: color-mix(in srgb, #1e293b 80%, #312e81 20%);
+  background: color-mix(in srgb, #1e1a33 75%, #4c1d95 25%);
 }
 
-/* ----- Mermaid ----- */
+/* Mermaid */
 .mermaid {
   text-align: center;
   background: var(--flow-surface-1);
@@ -434,42 +440,41 @@
   border-radius: 0.6rem;
   padding: 1.25rem 1rem;
   margin: 1.25rem 0;
-  box-shadow: 0 4px 24px -8px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 24px -8px rgba(15, 23, 42, 0.1);
   transition: box-shadow var(--flow-dur) var(--flow-ease);
 }
 
 .mermaid:hover {
-  box-shadow: 0 8px 32px -8px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 8px 32px -8px var(--flow-glow);
 }
 
-/* ----- Tabbed (pymdownx) ----- */
+/* Tabbed */
 .md-typeset .tabbed-set {
   border-radius: 0.5rem;
   border: 1px solid var(--flow-border);
   overflow: hidden;
-  box-shadow: 0 2px 12px -4px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 12px -4px rgba(15, 23, 42, 0.06);
 }
 
-/* ----- Task lists ----- */
+/* Tasks */
 .md-typeset .task-list-control .task-list-indicator::before {
   border-color: var(--flow-link);
 }
 
-/* ----- Instant navigation progress (Material) ----- */
+/* Instant load bar */
 .md-progress {
-  background: linear-gradient(90deg, var(--md-typeset-a-color), var(--md-accent-fg-color));
-  box-shadow: 0 0 12px var(--flow-glow);
+  background: linear-gradient(90deg, #7c3aed, #f59e0b);
+  box-shadow: 0 0 10px var(--flow-glow);
 }
 
-/* ----- Search highlight ----- */
+/* Selection + search */
 .md-search-result mark,
 ::selection {
-  background: rgba(6, 182, 212, 0.28);
+  background: color-mix(in srgb, #f59e0b 35%, #c4b5fd 20%);
   color: inherit;
 }
 
-/* ----- HR ----- */
 .md-typeset hr {
   border-color: var(--flow-border);
-  opacity: 0.9;
+  opacity: 0.85;
 }
