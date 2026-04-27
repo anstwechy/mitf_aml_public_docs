@@ -15,6 +15,50 @@
 
 If you use Consul KV for production settings, mirror the same keys as in `docker-compose` / appsettings. Example key paths and JSON fragments: `deployment/CONSUL_KV_INGESTION_SUBSCRIPTION.md`.
 
+### Architecture: tenants, keys, and where they live
+
+**Management** is the **system of record** for **tenants**, **subscription plans**, and **ingestion credentials** (hashed secrets in **Management DB**). The **Analyzer** uses the same database connection to validate **HTTP** `X-Api-Key` traffic and, when enabled, **subscription and quota** before a message is published to MassTransit.
+
+```mermaid
+flowchart TB
+  subgraph admin [Administration - Management API]
+    API[Management API]
+    ADM[SuperAdmin and Admin - JWT]
+  end
+  DB[(Management DB)]
+  subgraph data [Data held]
+    T[Tenant and subscription]
+    C[TenantIngestionCredential - hashed]
+  end
+  subgraph an [Analyzer - HTTP ingress]
+    V[Validate key and optional quota]
+    MT[Publish to MassTransit or queue]
+  end
+  ADM -->|create key, revoke| API
+  API --> DB
+  DB --> T
+  DB --> C
+  V -->|lookup| DB
+  V -->|ok| MT
+```
+
+**Key lifecycle (issue to first transaction):**
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Admin
+  participant Mgmt as Management
+  participant DB as Management DB
+  participant An as Analyzer
+  Admin->>Mgmt: POST ingestion credential
+  Mgmt->>DB: store hashed key material
+  Mgmt-->>Admin: one-time full key fg_KeyId.Secret
+  Note over An: Later: X-Api-Key on ingress
+  An->>DB: match tenant, validate, meter
+  An-->>An: publish to internal pipeline
+```
+
 ## Ingress metering (Analyzer)
 
 The Analyzer validates the key **before** publishing to MassTransit, then **commits** `LastUsedAt` and monthly `TenantSubscriptionUsage` **only after** a successful publish. If publish fails, usage is not incremented.

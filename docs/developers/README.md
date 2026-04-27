@@ -22,6 +22,25 @@ Master index: [docs/README.md](../README.md). **Product owner:** [Masarat](../ma
 | `frontend/AMLPortal/` | Angular 17 application |
 | `deployment/` | Compose files, scripts, infra configs |
 
+**Service relationships (documentation view):**
+
+```mermaid
+flowchart LR
+  subgraph hosts [Runnable apps]
+    AN[FlowGuard.Analyzer]
+    MG[FlowGuard.Management]
+    PO[AML Portal - Angular]
+  end
+  subgraph data [Data and messaging]
+    PG[(PostgreSQL)]
+    R[(RabbitMQ)]
+  end
+  AN --> PG
+  AN --> R
+  MG --> PG
+  PO -->|HTTP API| MG
+```
+
 ## First-time setup
 
 1. **Clone the platform** repository (this docs repo is documentation-only) and use **`README.local.md`** at the repo root — Docker stack, default ports, and **tutorial: first transaction to the portal** (full stack; not duplicated here).

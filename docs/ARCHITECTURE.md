@@ -12,6 +12,29 @@ FlowGuard is designed so **producers** can be loud (cores, **wallet** bridges, a
 
 **Why this shape wins:** decouple **ingest volume** from **UI scale** — the Analyzer and broker absorb spikes; Management and the portal stay the **authoritative** place for users, cases, and audit narrative.
 
+### 1.1 System context (actors and boundaries)
+
+**External** systems publish transactions or use the **portal**; **FlowGuard** services and data stores are **inside** the product boundary. Security mechanisms (JWT, HMAC, keys) are summarised in [§4](#4-security-boundaries-defensible-by-design).
+
+```mermaid
+flowchart LR
+  subgraph ext [Bank and channels]
+    PR[Producers and bridges]
+    AN[Analysts and admins]
+  end
+  subgraph fg [FlowGuard]
+    R[(RabbitMQ)]
+    A[Analyzer]
+    M[Management]
+    U[AML Portal]
+  end
+  PR -->|messages| R
+  R --> A
+  AN -->|browser| U
+  U --> M
+  A -->|alerts, cases, webhooks| M
+```
+
 ## 2. Logical containers — what we actually run
 
 | Component | What it does | How we deploy it |
@@ -26,6 +49,40 @@ FlowGuard is designed so **producers** can be loud (cores, **wallet** bridges, a
 | **Observability** | **OpenTelemetry** collector, **Prometheus**, **Loki**, **Tempo**, **Grafana** | Same **compose / swarm** story as the apps — the stack is **observed**, not opaque |
 
 Code layout: `src/Applications/` (hosts), `src/Services/`, `src/Core/`, `src/Clients/` — **clean separation** between deployable **hosts** and **reusable** domain and client libraries.
+
+### 2.1 Tenant and deployment topology
+
+**Per bank / tenant** you typically route traffic to a **dedicated Analyzer** and **dedicated queue binding** so `BankCode` on the envelope always matches the host’s `TenantConfig`. **Management**, the **portal**, and **subscription/ingestion** administration stay **centrally** deployed — one **operational** place for users, cases, and keys.
+
+```mermaid
+flowchart TB
+  subgraph shared [Shared across banks]
+    M[Management API]
+    P[AML Portal]
+    DBM[(Management DB - tenants, keys, cases, subscriptions)]
+  end
+  subgraph b1 [Bank A slice]
+    QA[(Queue aml.transactions.A)]
+    AA[Analyzer A - TenantConfig BankCode A]
+    DBA[(Analyzer DB A)]
+  end
+  subgraph b2 [Bank B slice]
+    QB[(Queue aml.transactions.B)]
+    AB[Analyzer B - TenantConfig BankCode B]
+    DBB[(Analyzer DB B)]
+  end
+  X[(Exchange aml.transactions)]
+  M --> DBM
+  P --> M
+  AA --> DBA
+  AB --> DBB
+  AA -->|webhooks| M
+  AB -->|webhooks| M
+  X --> QA
+  X --> QB
+  QA --> AA
+  QB --> AB
+```
 
 ## 3. Primary data flow — AML transaction (the main event)
 
@@ -54,6 +111,29 @@ flowchart LR
   U -->|JWT| M
 ```
 
+### 3.0 End-to-end sequence (happy path)
+
+Same spine as the diagram above, as a **time-ordered** view: from publish through analysis to the portal calling Management.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Prod as Producer
+  participant RMQ as RabbitMQ
+  participant MT as MassTransit consumer
+  participant An as Analyzer
+  participant Mgmt as Management
+  participant Port as AML Portal
+  Prod->>RMQ: Publish TransactionQueueMessage
+  RMQ->>MT: Deliver to bank queue
+  MT->>MT: Validate bank code vs TenantConfig
+  MT->>An: Analyse and persist
+  An->>Mgmt: POST signed alert or case webhook
+  Mgmt-->>An: 2xx
+  Port->>Mgmt: API over JWT
+  Mgmt-->>Port: Cases, users, config
+```
+
 **Design power:**
 
 - **Bank isolation** — `TenantConfig:BankCode` on each Analyzer; envelope **must** match. Wrong bank? **Rejected** — not silently cross-contaminated (see consumer logs and [queue runbook](./operations/aml-transaction-queue-runbook.md)).
@@ -63,6 +143,26 @@ flowchart LR
 ### 3.1 Fraud, reviews, and case webhooks
 
 **Fraud** runs in the **Analyzer** **alongside** AML and ML. It is **review-driven** and does not replace your typology or policy — it **informs** the right people. **FRAUD_REVIEW** (and other) alerts go to **Management** on the same **signed alert webhook** path as AML. The **AML Portal** carries **Fraud reviews**, per-tenant **Fraud config**, and **Fraud calibration**. When the Analyzer hits the **case webhook** (`POST` under `api/webhooks/.../case`), **Case** records land in **Management** so **investigator workflows** stay in one system of record.
+
+### 3.2 Inside the Analyzer: processing pipeline
+
+Logical stages after a **queue message** or **supported HTTP** path: validation, **screening** (rules, lists, models), then **persistence** and **downstream** signals to Management. Exact class names live in the platform repo; this is the **operational** mental model.
+
+```mermaid
+flowchart TB
+  IN[Incoming transaction]
+  V{Bank code and envelope OK?}
+  S[Screening: rules, watchlist, ML, fraud]
+  P[Persist results in Analyzer DB]
+  W[Signed webhooks to Management]
+  X[Response or ACK]
+  IN --> V
+  V -->|no| X
+  V -->|yes| S
+  S --> P
+  P --> W
+  W --> X
+```
 
 ## 4. Security boundaries — defensible by design
 
@@ -74,9 +174,53 @@ flowchart LR
 | Monitoring → Analyzer | Optional **HMAC** on the canonical payload when `SignatureValidation:Enabled` |
 | Transaction HTTP ingress | **API key** or **DB-backed** ingestion keys per **tenant** |
 
+**Trust zones (who proves what to whom):**
+
+```mermaid
+flowchart LR
+  subgraph z1 [Browser zone]
+    U[User]
+  end
+  subgraph z2 [API zone]
+    P[AML Portal]
+    M[Management]
+  end
+  subgraph z3 [Analysis zone]
+    A[Analyzer]
+  end
+  U -->|HTTPS + session/JWT| P
+  P -->|Bearer JWT| M
+  A -->|HMAC-signed webhooks, timestamp| M
+```
+
 Deeper hardening: [team-runbooks/security-runbook.md](./team-runbooks/security-runbook.md).
 
 ## 5. Observability — you can see what it did
+
+**Signal path (typical compose / Swarm stack):**
+
+```mermaid
+flowchart LR
+  subgraph apps [Applications]
+    A[Analyzer]
+    M[Management]
+  end
+  subgraph o11y [Observability]
+    OT[OpenTelemetry]
+    PR[Prometheus]
+    LO[Loki]
+    TE[Tempo]
+    GF[Grafana]
+  end
+  A --> OT
+  M --> OT
+  OT --> PR
+  OT --> LO
+  OT --> TE
+  PR --> GF
+  LO --> GF
+  TE --> GF
+```
 
 - **Metrics & traces** — `ObservabilityRegistration` in `src/BuildingBlocks/Observability/Telemetry/OpenTelemetry.cs`: **W3C** trace context and **baggage** before ASP.NET Core and **HTTP** clients start.
 - **Messaging** — MassTransit paths emit **structured logs** and **propagate** trace context (see Analyzer consumer for headers and span tags).

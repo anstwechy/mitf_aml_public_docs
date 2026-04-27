@@ -4,6 +4,35 @@
 
 This site is the **canonical technical documentation** for FlowGuard — **owned and shipped by [Masarat](./masarat.md)** alongside the platform code and deployment manifests. When behaviour or interfaces change, the docs move in the **same change set** as the product.
 
+### System map (who talks to what)
+
+High-level view: **ingest** scales on the **broker and Analyzer**; **cases and users** stay on the **shared Management** plane and **AML Portal**. Detail: [ARCHITECTURE.md](ARCHITECTURE.md).
+
+```mermaid
+flowchart TB
+  subgraph channels [Ingestion channels]
+    W[Producers and adapters]
+    H[Optional HTTP ingress]
+  end
+  R[(RabbitMQ)]
+  subgraph per_bank [Per-bank analysis capacity]
+    A[FlowGuard.Analyzer]
+  end
+  subgraph shared [Shared case and admin plane]
+    M[FlowGuard.Management]
+    P[AML Portal]
+  end
+  D_M[(Management DB)]
+  D_A[(Analyzer DB)]
+  W -->|TransactionQueueMessage| R
+  H --> A
+  R --> A
+  A --> D_A
+  A -->|signed webhooks| M
+  M --> D_M
+  P -->|JWT| M
+```
+
 ---
 
 ### At a glance — platform powers

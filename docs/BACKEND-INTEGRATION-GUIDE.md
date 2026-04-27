@@ -35,6 +35,35 @@ Each Analyzer instance is configured for **one bank** via `TenantConfig:BankCode
 
 Integrators must **route traffic to the correct Analyzer URL or queue** for each bank.
 
+### Routing model (per bank or tenant)
+
+**Do not** send **Bank A** traffic to the **Bank B** Analyzer host or queue: the service checks the envelope and **rejects** or **isolates** mismatches so tenants do not **cross-contaminate**.
+
+```mermaid
+flowchart LR
+  subgraph p [Producers]
+    PA[Producer A - TEJARI]
+    PB[Producer B - OTHER]
+  end
+  subgraph r [RabbitMQ]
+    E[(Exchange - aml.transactions)]
+    QA[(Queue ... TEJARI)]
+    QB[(Queue ... OTHER)]
+  end
+  subgraph hosts [Analyzer hosts - TenantConfig]
+    AA[Analyzer TEJARI]
+    AB[Analyzer OTHER]
+  end
+  PA -->|key transaction.TEJARI| E
+  PB -->|key transaction.OTHER| E
+  E --> QA
+  E --> QB
+  QA --> AA
+  QB --> AB
+```
+
+For **HTTP** (including **DB-backed** keys), the same **isolation** rule applies: call the **Analyzer base URL** that your integration was issued for; **X-Api-Key** resolves a **tenant** in **shared** Management data while the **host** must still be the right **analysis** stack for that bank.
+
 ## Base URL, discovery, and headers
 
 ### Base URLs (per environment)

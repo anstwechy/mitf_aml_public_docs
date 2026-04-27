@@ -10,6 +10,19 @@
 | HTTP ingress | **Optional.** `POST /api/v1/TransactionQueueIngress/transactions` on FlowGuard.Analyzer when partners cannot publish to RabbitMQ (see [HTTP ingress](#optional-http-ingress)). |
 | Legacy `TransactionAnalysis` HTTP | Deprecated; kept for backward compatibility only. |
 
+**Integration shape (not to scale):**
+
+```mermaid
+flowchart LR
+  W[Masarat MITF wallet or bridge]
+  R[(RabbitMQ)]
+  A[FlowGuard.Analyzer]
+  M[FlowGuard.Management]
+  W -->|TransactionQueueMessage| R
+  R --> A
+  A -->|alerts, cases| M
+```
+
 ## RabbitMQ topology
 
 **Authoritative reference:** [Backend integration guide — Part A, RabbitMQ](../BACKEND-INTEGRATION-GUIDE.md#recommended-rabbitmq-masstransit-consumer) (and `src/Applications/FlowGuard.Analyzer/appsettings.json` in the platform repository). **Operations** (retries, TTL, DLQ triage, manual verification): [aml-transaction-queue runbook](../operations/aml-transaction-queue-runbook.md).
