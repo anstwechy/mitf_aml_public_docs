@@ -1,8 +1,26 @@
-# FlowGuard documentation
+# FlowGuard — what we built
 
-This directory is the **canonical technical documentation** for the FlowGuard AML platform (`mitf-aml-system`), **owned and maintained by [Masarat](./masarat.md)** as product documentation alongside the code and `deployment/` manifests. When behaviour or interfaces change, update the relevant page in the same change set.
+**FlowGuard** is a full-stack **AML transaction monitoring and case-management platform**: high-throughput screening, institution-tuned rules, statistical and ML-assisted detection, **fraud review** paths, and a single **AML Portal** where analysts work alerts and cases end to end. It is built to run **multi-tenant** (per-bank isolation), **queue-first** at scale (RabbitMQ + MassTransit), and **operationally observable** (metrics, logs, traces) in real environments.
 
-Structure follows [Diátaxis](https://diataxis.fr/) (tutorial / how-to / reference / explanation). The table below is the full map; there is no separate file index to avoid duplicating the same links.
+This site is the **canonical technical documentation** for FlowGuard — **owned and shipped by [Masarat](./masarat.md)** alongside the platform code and deployment manifests. When behaviour or interfaces change, the docs move in the **same change set** as the product.
+
+---
+
+### At a glance — platform powers
+
+| Capability | What it means in practice |
+|------------|---------------------------|
+| **Screening engine** | Analyzer services score every ingested transaction with rules, watchlists, anomaly models, and ML where configured — not a black box: integration contracts and field semantics are documented. |
+| **Cases & alerts** | Central **Management** API for alerts, cases, reporting, subscription and **ingestion credential** administration; analysts use the **AML Portal** against that API. |
+| **Channel breadth** | **RabbitMQ** as the primary path for `TransactionQueueMessage`, optional **HTTP** ingress where agreed, and a **Masarat MITF wallet** integration story for digital channels ([wallet contract](integrations/masarat-wallet-flowguard-integration.md)). |
+| **Security posture** | Signed **webhooks** (HMAC) from Analyzer to Management, JWT to the portal, optional **HMAC** on monitoring event payloads, **DB-backed ingestion keys** and metering — see [security runbook](team-runbooks/security-runbook.md). |
+| **Operations** | Runbooks for **queues / DLQ**, **deployment**, **health checks**, and **observability** (Grafana, Loki, Tempo, Prometheus) so the platform is **runnable**, not just documented. |
+
+---
+
+### How this documentation is organised
+
+Structure follows [Diátaxis](https://diataxis.fr/) (tutorial / how-to / reference / explanation). The table below is the full map; there is no separate file index so we do not duplicate links.
 
 | Type | Where | What it contains |
 |------|--------|------------------|
@@ -16,7 +34,7 @@ Structure follows [Diátaxis](https://diataxis.fr/) (tutorial / how-to / referen
 
 | Audience | Start here |
 |----------|------------|
-| **Software engineers** | [developers/README.md](./developers/README.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) → `src/Applications/*/README.md` |
+| **Software engineers** | [developers/README.md](./developers/README.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) → `src/Applications/*/README.md` (platform repo) |
 | **Integration / bank IT** | [BACKEND-INTEGRATION-GUIDE.md](./BACKEND-INTEGRATION-GUIDE.md) → [integrations/masarat-wallet-flowguard-integration.md](./integrations/masarat-wallet-flowguard-integration.md) → [TENANT_INGESTION_KEYS.md](./TENANT_INGESTION_KEYS.md) |
 | **Platform & SRE** | [team-runbooks/README.md](./team-runbooks/README.md) → [operations/aml-transaction-queue-runbook.md](./operations/aml-transaction-queue-runbook.md) |
 | **Security** | [team-runbooks/security-runbook.md](./team-runbooks/security-runbook.md) |

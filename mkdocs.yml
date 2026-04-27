@@ -26,9 +26,9 @@ exclude_docs: |
   /site/**
 
 nav:
-  - Home: README.md
-  - Masarat: masarat.md
-  - Architecture: ARCHITECTURE.md
+  - "FlowGuard at a glance": README.md
+  - "Masarat": masarat.md
+  - "Architecture & design": ARCHITECTURE.md
   - Glossary: GLOSSARY.md
   - Backend integration: BACKEND-INTEGRATION-GUIDE.md
   - Tenant & ingestion keys: TENANT_INGESTION_KEYS.md

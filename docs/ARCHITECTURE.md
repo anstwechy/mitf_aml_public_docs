@@ -1,33 +1,35 @@
-# FlowGuard — system architecture
+# FlowGuard — architecture built for real AML workloads
 
-This document explains how the major parts of FlowGuard fit together. **Product ownership and who operates the platform in production** are summarised in [masarat.md](./masarat.md) and [bank/governance-and-operations.md §2](./bank/governance-and-operations.md#2-operating-authority). For integration contracts and field-level APIs, use [BACKEND-INTEGRATION-GUIDE.md](./BACKEND-INTEGRATION-GUIDE.md) and OpenAPI on a running Analyzer or Management host.
+This document is the **technical backbone** of the story: how FlowGuard turns **ingested transactions** into **screening outcomes**, **alerts**, **fraud review**, and **case workflows** in a **multi-tenant**, **message-driven** architecture with **clear security boundaries** and **first-class observability**. **Who owns the product and runs it in production** is in [masarat.md](./masarat.md) and [bank/governance-and-operations.md §2](./bank/governance-and-operations.md#2-operating-authority). For field-level contracts and HTTP/queue details, use [BACKEND-INTEGRATION-GUIDE.md](./BACKEND-INTEGRATION-GUIDE.md) and OpenAPI on a running Analyzer or Management host.
 
-## 1. System context
+## 1. System context — who plugs in, who gets value
 
-FlowGuard screens financial transactions for AML risk, applies institution-defined rules and statistical anomaly detection, and feeds **alerts** into a central **case management** API consumed by compliance analysts through the **AML Portal**.
+FlowGuard is designed so **producers** can be loud (cores, **wallet** bridges, adapters) and **analysts** get a **calm, unified** portal: all screening feeds **alerts** into a central **case-management** API; compliance and fraud work happens in the **AML Portal** without re-wiring the bank’s entire stack for every new channel.
 
-External actors:
+- **Producers** publish `TransactionQueueMessage` to **RabbitMQ** (the **default, scalable** path) or use **HTTP** ingress where contractually agreed.
+- **Channel monitoring** (mobile / web **security** events) lands on the Analyzer monitoring API, **signed** when that path is enabled.
+- **Analysts & admins** use the **AML Portal** in the browser; everything behind it is the **Management** API and policy layer.
 
-- **Transaction producers** — bank cores, wallet gateways, or adapters that publish `TransactionQueueMessage` to RabbitMQ (preferred) or call HTTP ingress where agreed.
-- **Channel monitoring producers** — mobile or web security events posted to the Analyzer monitoring API (signed when enabled).
-- **Analysts and administrators** — browser clients on the AML Portal, backed by the Management API.
+**Why this shape wins:** decouple **ingest volume** from **UI scale** — the Analyzer and broker absorb spikes; Management and the portal stay the **authoritative** place for users, cases, and audit narrative.
 
-## 2. Logical containers
+## 2. Logical containers — what we actually run
 
-| Container | Responsibility | Typical runtime |
-|-----------|----------------|-----------------|
-| **FlowGuard.Analyzer** | Validate and analyse transactions per configured **bank code**; rules + ML + watchlist logic; emit webhooks to Management; optional monitoring ingestion | One deployable instance per bank/tenant routing policy |
-| **FlowGuard.Management** | Authentication, authorization, users, tenants, alerts, cases, reporting, subscription and ingestion credential administration | Shared central service |
-| **AML Portal** | Angular SPA; operational UI | Static assets + API gateway to Management |
-| **PostgreSQL** | Durable state for Management and per-Analyzer schemas as deployed | Managed or containerised |
-| **RabbitMQ** | Topic exchanges for transactions (and optional monitoring queues) | Cluster or single node per environment |
-| **Redis** | Caching layer for hot paths | Optional per deployment |
-| **Consul** | KV configuration and discovery where enabled | Optional |
-| **Observability stack** | OpenTelemetry collector, Prometheus, Loki, Tempo, Grafana | Sidecar or shared infra compose |
+| Component | What it does | How we deploy it |
+|-----------|----------------|------------------|
+| **FlowGuard.Analyzer** | Validates and **analyses** transactions per **bank code**; **rules + ML + watchlist**; **fraud** in parallel with AML; **signed webhooks** to Management; optional **monitoring** ingestion | Typically **per bank / tenant routing policy** — isolation is a **design feature**, not an afterthought |
+| **FlowGuard.Management** | **AuthN/Z**, **users**, **tenants**, **alerts**, **cases**, **reporting**, **subscription & ingestion** administration | **Shared central** service — one place for operational truth |
+| **AML Portal** | **Angular** SPA — the operational **face** of the product | Static assets + API path to Management |
+| **PostgreSQL** | Durable state for Management and per-Analyzer **schemas** as deployed | Managed or containerised |
+| **RabbitMQ** | **Topic** exchanges for transactions (and optional **monitoring** plumbing) | Cluster or node per environment |
+| **Redis** | **Hot** caching | Optional per deployment |
+| **Consul** | **KV** and discovery | Optional |
+| **Observability** | **OpenTelemetry** collector, **Prometheus**, **Loki**, **Tempo**, **Grafana** | Same **compose / swarm** story as the apps — the stack is **observed**, not opaque |
 
-Repository layout for these services is under `src/Applications/` (hosts), `src/Services/` (domain libraries), `src/Core/` (shared models), `src/Clients/` (Analyzer client library).
+Code layout: `src/Applications/` (hosts), `src/Services/`, `src/Core/`, `src/Clients/` — **clean separation** between deployable **hosts** and **reusable** domain and client libraries.
 
-## 3. Primary data flow — AML transaction
+## 3. Primary data flow — AML transaction (the main event)
+
+The diagram is the **happy path** from producer to case management. Everything else in the runbooks (retries, DLQ, HMAC) hangs off this spine.
 
 ```mermaid
 flowchart LR
@@ -52,49 +54,51 @@ flowchart LR
   U -->|JWT| M
 ```
 
-Design points:
+**Design power:**
 
-- **Bank isolation** — Each Analyzer process is configured with a `TenantConfig:BankCode`. Envelope `BankCode` must match; mismatches are rejected (see consumer logs and DLQ runbook).
-- **At-least-once delivery** — Message brokers may redeliver; Management and Analyzer idempotency rules (e.g. transaction id, ingestion receipts) must be respected. See [TENANT_INGESTION_KEYS.md](./TENANT_INGESTION_KEYS.md) for HTTP ingress metering and duplicate handling.
-- **Legacy HTTP analyse paths** on the Analyzer remain for backward compatibility; new integrations should use the queue or supported ingress endpoints described in the integration guide.
+- **Bank isolation** — `TenantConfig:BankCode` on each Analyzer; envelope **must** match. Wrong bank? **Rejected** — not silently cross-contaminated (see consumer logs and [queue runbook](./operations/aml-transaction-queue-runbook.md)).
+- **At-least-once** — the broker can **redeliver**; idempotency on **transaction id** and ingestion rules is **documented** ([TENANT_INGESTION_KEYS.md](./TENANT_INGESTION_KEYS.md) for HTTP ingress and duplicates).
+- **Legacy HTTP** analyse routes remain for **compatibility**; new work should go **queue-first** or the **supported** ingress in the integration guide.
 
-### 3.1 Fraud screening, reviews, and case webhooks
+### 3.1 Fraud, reviews, and case webhooks
 
-Fraud checks run in **FlowGuard.Analyzer** in parallel with AML rules and ML. Fraud is **review-oriented** and does not replace AML typology or institutional risk policy. The Analyzer posts **FRAUD_REVIEW** (and other) alerts to **FlowGuard.Management** using the same signed **alert webhook** path as AML. Operators use the **AML Portal** for **Fraud reviews**, per-tenant **Fraud configuration**, and **Fraud calibration** under Reports. **Case** records can be created in Management when the Analyzer calls the **case webhook** (`POST` under `api/webhooks/.../case`), so investigator workflows stay in the Management database and portal.
+**Fraud** runs in the **Analyzer** **alongside** AML and ML. It is **review-driven** and does not replace your typology or policy — it **informs** the right people. **FRAUD_REVIEW** (and other) alerts go to **Management** on the same **signed alert webhook** path as AML. The **AML Portal** carries **Fraud reviews**, per-tenant **Fraud config**, and **Fraud calibration**. When the Analyzer hits the **case webhook** (`POST` under `api/webhooks/.../case`), **Case** records land in **Management** so **investigator workflows** stay in one system of record.
 
-## 4. Security boundaries
+## 4. Security boundaries — defensible by design
 
 | Boundary | Mechanism |
 |----------|-----------|
-| Portal → Management | JWT bearer; role and permission policies on controllers |
-| Management → external | TLS at edge; secrets from environment or Consul, not committed defaults |
-| Analyzer → Management | Webhook HMAC and timestamp validation (see `WebhookSecurityService`) |
-| Monitoring events → Analyzer | Optional HMAC on canonical payload when `SignatureValidation:Enabled` |
-| Transaction HTTP ingress | API key or DB-backed ingestion keys per tenant configuration |
+| Portal → Management | **JWT** bearer; **roles** and **policies** on controllers |
+| Management → edge | **TLS**; secrets from **env** or **Consul** — not baked defaults in repo |
+| Analyzer → Management | **Webhook HMAC** + **timestamp** validation (`WebhookSecurityService`) |
+| Monitoring → Analyzer | Optional **HMAC** on the canonical payload when `SignatureValidation:Enabled` |
+| Transaction HTTP ingress | **API key** or **DB-backed** ingestion keys per **tenant** |
 
-Detailed control checklist: [team-runbooks/security-runbook.md](./team-runbooks/security-runbook.md).
+Deeper hardening: [team-runbooks/security-runbook.md](./team-runbooks/security-runbook.md).
 
-## 5. Observability
+## 5. Observability — you can see what it did
 
-- **Metrics and traces** — Registered via shared observability bootstrap (`ObservabilityRegistration` in `src/BuildingBlocks/Observability/Telemetry/OpenTelemetry.cs`): W3C trace context and baggage propagators are set before ASP.NET Core and HTTP clients initialise.
-- **Messaging** — MassTransit consumer and publisher paths emit structured logs and participate in trace propagation; see Analyzer consumer implementation for header extraction and span tags.
-- **Dashboards** — Compose-defined Grafana, Prometheus, Loki, Tempo; see [team-runbooks/operations-runbook.md](./team-runbooks/operations-runbook.md).
+- **Metrics & traces** — `ObservabilityRegistration` in `src/BuildingBlocks/Observability/Telemetry/OpenTelemetry.cs`: **W3C** trace context and **baggage** before ASP.NET Core and **HTTP** clients start.
+- **Messaging** — MassTransit paths emit **structured logs** and **propagate** trace context (see Analyzer consumer for headers and span tags).
+- **Dashboards** — Grafana / Prometheus / Loki / Tempo from compose; [operations runbook](./team-runbooks/operations-runbook.md) ties it to **how you run** the stack.
 
-## 6. Configuration surfaces
+**Why it matters in production:** a compliance stack that cannot be **traced** and **tuned** under load is a liability. FlowGuard is built so **SRE and auditors** can follow the **thread** from ingress to case.
+
+## 6. Configuration — envs, compose, Consul
 
 | Surface | Use |
-|---------|-----|
-| `appsettings.json` + environment variables | Local and container defaults |
-| `deployment/docker-compose*.yml` | Service topology, ports, env injection |
-| Consul KV | Production overrides; document keys in `deployment/CONSUL_KV_INGESTION_SUBSCRIPTION.md` for ingestion-related examples |
+|---------|------|
+| `appsettings.json` + **env** | Local and container **defaults** |
+| `deployment/docker-compose*.yml` | **Topology**, ports, **injected** config |
+| **Consul KV** | Production **overrides**; ingestion keys described in `deployment/CONSUL_KV_INGESTION_SUBSCRIPTION.md` |
 
-## 7. Frontend configuration note
+## 7. Frontend note
 
-The AML Portal reads runtime settings from `/assets/config.json` (generated at container startup in Docker). API logging and base URLs are controlled there; see portal `docker-entrypoint.sh` and deployment env vars.
+The **AML Portal** loads `/assets/config.json` at **container** startup (see `docker-entrypoint` and deployment env) — so **per-environment** API and logging are **not** a rebuild for every target.
 
 ## 8. Further reading
 
-- [masarat.md](./masarat.md) — Masarat as product owner and platform operator
-- [GLOSSARY.md](./GLOSSARY.md) — terminology
+- [masarat.md](./masarat.md) — product owner and platform operator
+- [GLOSSARY.md](./GLOSSARY.md) — shared vocabulary
 - [integrations/masarat-wallet-flowguard-integration.md](./integrations/masarat-wallet-flowguard-integration.md) — wallet contract
-- [operations/aml-transaction-queue-runbook.md](./operations/aml-transaction-queue-runbook.md) — queue operations
+- [operations/aml-transaction-queue-runbook.md](./operations/aml-transaction-queue-runbook.md) — queue operations in depth
