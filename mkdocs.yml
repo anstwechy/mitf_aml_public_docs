@@ -96,12 +96,11 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.superfences:
-      # Use mermaid2's div fence (not Material "custom" pre/code). The _custom fence only
-      # sets window.mermaidConfig with startOnLoad:false and never calls mermaid.run — diagrams stay blank.
+      # Renders ```mermaid as <div class="mermaid"> (Material + our mermaid-init.js call mermaid.run()).
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
@@ -114,6 +113,11 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
+
+# Mermaid 10: explicit mermaid.run() in javascripts/mermaid-init.js (library first, then init).
+extra_javascript:
+  - javascripts/mermaid.min.js
+  - javascripts/mermaid-init.js
 
 extra:
   generator: false
@@ -132,11 +136,3 @@ strict: false
 
 plugins:
   - search
-  - mermaid2:
-      version: "10.4.0"
-      # Vendored under docs/javascripts/ so `mkdocs build --strict` works without hitting unpkg at build time (and CI is deterministic).
-      javascript: javascripts/mermaid.min.js
-      arguments:
-        startOnLoad: true
-        securityLevel: loose
-        theme: default
