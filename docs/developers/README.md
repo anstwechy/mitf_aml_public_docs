@@ -24,9 +24,8 @@ Master index: [docs/README.md](../README.md). **Product owner:** [Masarat](../ma
 
 ## First-time setup
 
-1. Clone the repository.
-2. Follow **[README.local.md](../../README.local.md)** — Docker stack, default ports, and **tutorial: first transaction to the portal** (single document; no separate local-smoke guide).
-3. Run Management and Analyzer tests after schema changes:
+1. **Clone the platform** repository (this docs repo is documentation-only) and use **`README.local.md`** at the repo root — Docker stack, default ports, and **tutorial: first transaction to the portal** (full stack; not duplicated here).
+2. Run Management and Analyzer tests after schema changes:
 
    ```bash
    dotnet test src/FlowGuard.sln --no-build

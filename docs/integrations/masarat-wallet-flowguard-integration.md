@@ -12,7 +12,7 @@
 
 ## RabbitMQ topology
 
-Exchange names, routing keys, consumer queues, DLQ pattern, and MassTransit settings are **shared with every channel** — not wallet-specific. **Authoritative reference:** [Backend integration guide — Part A, RabbitMQ](../BACKEND-INTEGRATION-GUIDE.md#recommended-rabbitmq-masatransit-consumer) (and [appsettings.json](../../src/Applications/FlowGuard.Analyzer/appsettings.json)). **Operations** (retries, TTL, DLQ triage, manual verification): [aml-transaction-queue runbook](../operations/aml-transaction-queue-runbook.md).
+**Authoritative reference:** [Backend integration guide — Part A, RabbitMQ](../BACKEND-INTEGRATION-GUIDE.md#recommended-rabbitmq-masstransit-consumer) (and `src/Applications/FlowGuard.Analyzer/appsettings.json` in the platform repository). **Operations** (retries, TTL, DLQ triage, manual verification): [aml-transaction-queue runbook](../operations/aml-transaction-queue-runbook.md).
 
 **Bridge/producer permissions:** need **only publish** to exchange `aml.transactions` with routing key `transaction.{BankCode}` — not read access to the analyzer’s consumer queues.
 
@@ -20,13 +20,13 @@ Exchange names, routing keys, consumer queues, DLQ pattern, and MassTransit sett
 
 ## Message envelope: `TransactionQueueMessage`
 
-Defined in [TransactionQueueMessage.cs](../../src/Core/FlowGuard.Core/Models/TransactionQueueMessage.cs).
+Defined in `src/Core/FlowGuard.Core/Models/TransactionQueueMessage.cs` in the platform repository.
 
 | Field | Required | Description |
 |-------|----------|-------------|
 | `MessageId` | Yes | Unique id for the message (retry/idempotency correlation). |
 | `Timestamp` | Yes | UTC when the message was created. |
-| `BankCode` | Yes | Must match the analyzer instance `TenantConfig:BankCode`. Mismatch is **rejected** by the consumer (see [MassTransitTransactionQueueConsumer.cs](../../src/Applications/FlowGuard.Analyzer/Consumers/MassTransitTransactionQueueConsumer.cs)). |
+| `BankCode` | Yes | Must match the analyzer instance `TenantConfig:BankCode`. Mismatch is **rejected** by the consumer (see `src/Applications/FlowGuard.Analyzer/Consumers/MassTransitTransactionQueueConsumer.cs`). |
 | `CorrelationId` | No | End-to-end trace; prefer OpenTelemetry trace id when available. |
 | `MessageVersion` | Yes | Schema version; currently `1.0`. Add fields in backward-compatible ways only. |
 | `RoutingKey` | No | If set, should equal `transaction.{BankCode}` for publishers using MassTransit send topology. |
@@ -35,7 +35,7 @@ Defined in [TransactionQueueMessage.cs](../../src/Core/FlowGuard.Core/Models/Tra
 
 ## Payload: `TransactionAnalysisRequest`
 
-Validated by [TransactionAnalysisRequestValidator.cs](../../src/Applications/FlowGuard.Analyzer/Validation/TransactionAnalysisRequestValidator.cs) before processing.
+Validated by `src/Applications/FlowGuard.Analyzer/Validation/TransactionAnalysisRequestValidator.cs` before processing.
 
 ### Wallet-oriented field usage
 
@@ -47,7 +47,7 @@ Validated by [TransactionAnalysisRequestValidator.cs](../../src/Applications/Flo
 | `Amount` | **Must be &gt; 0.** Do not send negative amounts; represent reversals with a dedicated `TransactionType` (e.g. `WALLET_REVERSAL`) and positive amount, or a separate integration phase. |
 | `Currency` | ISO 4217, **three uppercase letters** (e.g. `LYD`). |
 | `TransactionDate` | UTC event time; must not be default; allowed up to ~5 minutes in the future for clock skew. |
-| `BankCode` / `CustomerBankCode` | Must align with `TenantConfig:BankCode` for this analyzer (see [AnalyzerAMLService.cs](../../src/Services/FlowGuard.Services.Analyzer/Services/Analysis/AnalyzerAMLService.cs)). |
+| `BankCode` / `CustomerBankCode` | Must align with `TenantConfig:BankCode` for this analyzer (see `src/Services/FlowGuard.Services.Analyzer/Services/Analysis/AnalyzerAMLService.cs`). |
 | `TransactionType` | Use a consistent vocabulary (see below). |
 | `Channel` | Use `WALLET` for wallet-originated traffic (see vocabulary below). |
 | `CorrelationId` | Wallet or gateway trace id. |
@@ -75,7 +75,7 @@ Risk weights for these types are configured under `AnomalyDetection:TransactionT
 ## Idempotency
 
 - **Business key:** `TransactionId` must be stable across retries.
-- **Persistence:** FlowGuard upserts by `TransactionId` ([AnalyzerAMLService.cs](../../src/Services/FlowGuard.Services.Analyzer/Services/Analysis/AnalyzerAMLService.cs)); duplicate messages update analysis results for the same id.
+- **Persistence:** FlowGuard upserts by `TransactionId` (`src/Services/FlowGuard.Services.Analyzer/Services/Analysis/AnalyzerAMLService.cs` in the platform repo); duplicate messages update analysis results for the same id.
 
 ## Versioning
 

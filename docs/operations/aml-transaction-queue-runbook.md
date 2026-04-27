@@ -11,7 +11,7 @@ Operational guidance for RabbitMQ-backed transaction ingestion in FlowGuard.Anal
 | DLQ `aml.transactions.dlq.{BankCode}` | Dead-letter queue after retry exhaustion (see `x-dead-letter-*` on main queue). |
 | `MassTransitTransactionQueueConsumer` | Consumes `TransactionQueueMessage`, validates envelope `BankCode`, calls `IAnalyzerService`. |
 
-Configuration: [TransactionQueueOptions.cs](../../src/Applications/FlowGuard.Analyzer/Configuration/TransactionQueueOptions.cs), [appsettings.json](../../src/Applications/FlowGuard.Analyzer/appsettings.json).
+Configuration: `src/Applications/FlowGuard.Analyzer/Configuration/TransactionQueueOptions.cs`, `src/Applications/FlowGuard.Analyzer/appsettings.json` (platform repository).
 
 ## Retry behavior
 
@@ -24,13 +24,13 @@ Configuration: [TransactionQueueOptions.cs](../../src/Applications/FlowGuard.Ana
 1. **Queue depth:** Alert when `aml.transactions.dlq.{BankCode}` message count &gt; 0 sustained, or above a threshold.
 2. **Primary queue lag:** Alert when `aml.transactions.{BankCode}` consumer lag grows (messages not acknowledged).
 3. **Logs:** Search for `Rejecting transaction`, `Validation error processing transaction message`, `Error processing transaction message`.
-4. **Health:** `/health` includes `RabbitMq` check (degraded if broker unreachable—see [Program.cs](../../src/Applications/FlowGuard.Analyzer/Program.cs)).
+4. **Health:** `/health` includes `RabbitMq` check (degraded if broker unreachable—see `src/Applications/FlowGuard.Analyzer/Program.cs` in the platform repository).
 
 ## RabbitMQ credentials and TLS (production)
 
 - Use **dedicated** users: producers need **write** to `aml.transactions`; analyzer host needs **read** from its queue and **configure** on its queues as deployed.
 - **Least privilege:** do not share admin credentials with bridge services.
-- **TLS:** Set `MasaratMonitoring:RabbitMq:UseSsl` to `true` and configure `SslServerName` when the broker uses TLS; matches host SSL configuration in [Program.cs](../../src/Applications/FlowGuard.Analyzer/Program.cs).
+- **TLS:** Set `MasaratMonitoring:RabbitMq:UseSsl` to `true` and configure `SslServerName` when the broker uses TLS; matches host SSL configuration in `src/Applications/FlowGuard.Analyzer/Program.cs`.
 - **Virtual host:** Align `VirtualHost` across producers and analyzer.
 
 ## Message TTL

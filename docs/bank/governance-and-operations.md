@@ -17,7 +17,7 @@ A parallel path may exist for **fraud review** (behavioural fraud scoring). That
 
 **Masarat** owns FlowGuard as a product and, in the ordinary course, **runs the system**: application and supporting **infrastructure as contracted**, **deployments and releases**, **platform monitoring**, **incident response** for the service, **maintenance windows**, and **support** per agreed severities. Masarat also drives **product roadmap** and **software governance** for the codebase. The **bulk of day-to-day operational responsibility** for keeping the service up, healthy, and aligned with the deployed product sits with **Masarat**, not with the bank’s IT team as platform operator.
 
-Technical staff use [team-runbooks/](../team-runbooks/) and [operations/](../operations/) to describe *how* the stack is operated; **execution** of that operating model in production is **Masarat’s remit** under the agreement, unless a specific deal explicitly shares or transfers parts of operations to the bank.
+Technical staff use [team-runbooks](../team-runbooks/README.md) and [operations](../operations/aml-transaction-queue-runbook.md) to describe *how* the stack is operated; **execution** of that operating model in production is **Masarat’s remit** under the agreement, unless a specific deal explicitly shares or transfers parts of operations to the bank.
 
 A fuller statement of **product ownership, channels, support model, and security operating split** is in **[masarat.md](../masarat.md)**.
 

@@ -1,0 +1,12 @@
+# Cursor
+.cursor/
+
+# MkDocs
+/site/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env

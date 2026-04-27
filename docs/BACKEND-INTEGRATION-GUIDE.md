@@ -1,14 +1,14 @@
 # Backend integration guide — AML Analyzer
 
-This document is for backend teams integrating **bank transaction screening** and **security / monitoring events** with the FlowGuard AML Analyzer. The **interface contracts** and **RabbitMQ topology** described here are **owned and maintained by [Masarat](../masarat.md)** as the platform vendor; this repository reflects the current **implemented** behaviour. It covers the Analyzer API, validation rules, RabbitMQ topology, and event signing behavior.
+This document is for backend teams integrating **bank transaction screening** and **security / monitoring events** with the FlowGuard AML Analyzer. The **interface contracts** and **RabbitMQ topology** described here are **owned and maintained by [Masarat](masarat.md)** as the platform vendor; this repository reflects the current **implemented** behaviour. It covers the Analyzer API, validation rules, RabbitMQ topology, and event signing behavior.
 
 ## Table of contents
 
 1. [Overview](#overview)
 2. [Multi-tenant routing](#multi-tenant-routing)
 3. [Base URL, discovery, and headers](#base-url-discovery-and-headers)
-4. [Part A — Transactions](#part-a--transactions)
-5. [Part B — Security and monitoring events](#part-b--security-and-monitoring-events)
+4. [Part A — Transactions](#part-a-transactions)
+5. [Part B — Security and monitoring events](#part-b-security-and-monitoring-events)
 6. [Request and response models](#request-and-response-models)
 7. [Validation (transactions)](#validation-transactions)
 8. [Rate limiting and HTTP 429](#rate-limiting-and-http-429)
@@ -70,9 +70,9 @@ When the service is running, OpenAPI is exposed; the app maps Swagger UI at the 
 
 ---
 
-## Part A — Transactions
+## Part A — Transactions {#part-a-transactions}
 
-### Recommended: RabbitMQ (MassTransit consumer)
+### Recommended: RabbitMQ (MassTransit consumer) {#recommended-rabbitmq-masstransit-consumer}
 
 Configuration lives under `TransactionQueue` and uses the **same RabbitMQ connection section** as monitoring: `MasaratMonitoring:RabbitMq` (section name `MasaratMonitoring:RabbitMq` — see `RabbitMqOptions.SectionName` in `src/Masarat.Monitoring.Messaging`).
 
@@ -129,7 +129,7 @@ These actions are marked `[Obsolete]` in code; new integrations should use the q
 
 ---
 
-## Part B — Security and monitoring events
+## Part B — Security and monitoring events {#part-b-security-and-monitoring-events}
 
 ### HTTP ingestion (primary integration surface)
 

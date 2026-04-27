@@ -1,0 +1,118 @@
+# FlowGuard static docs. Run: pip install -r requirements.txt && mkdocs serve
+# CI sets SITE_URL and REPO_URL for canonical URLs and “Edit on GitHub”.
+site_name: FlowGuard documentation
+site_description: FlowGuard AML platform — technical and product documentation
+site_author: Masarat
+copyright: Copyright &copy; Masarat
+
+site_url: !ENV [SITE_URL, "http://127.0.0.1:8000/"]
+repo_url: !ENV [REPO_URL, ""]
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+site_dir: site
+
+validation:
+  nav:
+    omitted_files: info
+  links:
+    not_found: info
+    absolute_links: relative_to_docs
+    unrecognized_links: info
+
+exclude_docs: |
+  /site/**
+
+nav:
+  - Home: README.md
+  - Masarat: masarat.md
+  - Architecture: ARCHITECTURE.md
+  - Glossary: GLOSSARY.md
+  - Backend integration: BACKEND-INTEGRATION-GUIDE.md
+  - Tenant & ingestion keys: TENANT_INGESTION_KEYS.md
+  - Integrations:
+      - Masarat MITF / wallet: integrations/masarat-wallet-flowguard-integration.md
+  - ML:
+      - Detection enhancements: ML_DETECTION_ENHANCEMENTS.md
+      - Wallet roadmap: ML_WALLET_ROADMAP.md
+  - Developers: developers/README.md
+  - Bank & stakeholders:
+      - Overview: bank/README.md
+      - Executive: bank/executive-overview.md
+      - Compliance: bank/compliance-and-supervision.md
+      - Governance & operations: bank/governance-and-operations.md
+      - Vendor procurement: bank/vendor-procurement-guide.md
+  - Operations: operations/aml-transaction-queue-runbook.md
+  - Team runbooks:
+      - Index: team-runbooks/README.md
+      - Operations: team-runbooks/operations-runbook.md
+      - Deployment: team-runbooks/deployment-runbook.md
+      - Security: team-runbooks/security-runbook.md
+
+theme:
+  name: material
+  language: en
+  font:
+    text: Source Sans 3
+    code: IBM Plex Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.expand
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.tooltips
+    - toc.follow
+
+markdown_extensions:
+  - attr_list
+  - tables
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.details
+  - pymdownx.betterem
+  - pymdownx.smartsymbols
+  - pymdownx.magiclink
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+
+extra:
+  site_description: |
+    Diátaxis-structured reference for the FlowGuard AML platform — developers, runbooks, bank stakeholders, and integrations.
+
+extra_css:
+  - stylesheets/extra.css
+
+strict: false
+
+plugins:
+  - search
