@@ -95,12 +95,13 @@ markdown_extensions:
   - admonition
   - toc:
       permalink: true
+  # Diagrams: https://squidfunk.github.io/mkdocs-material/reference/diagrams/
+  # Use fence_code_format (pre > code.mermaid). Material's bundle loads Mermaid — not fence_div_format.
   - pymdownx.superfences:
-      # Renders ```mermaid as <div class="mermaid"> (Material + our mermaid-init.js call mermaid.run()).
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_div_format
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
@@ -113,11 +114,6 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
-
-# Mermaid 10: explicit mermaid.run() in javascripts/mermaid-init.js (library first, then init).
-extra_javascript:
-  - javascripts/mermaid.min.js
-  - javascripts/mermaid-init.js
 
 extra:
   generator: false
