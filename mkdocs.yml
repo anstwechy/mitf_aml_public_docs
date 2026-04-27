@@ -1,13 +1,15 @@
-# FlowGuard static docs. Run: pip install -r requirements.txt && mkdocs serve
-# CI sets SITE_URL and REPO_URL for canonical URLs and “Edit on GitHub”.
+# FlowGuard public docs (matches masarat public_online_payment_docs layout).
+# Local: pip install -r requirements.txt && mkdocs serve
+# Site:  https://anstwechy.github.io/mitf_aml_public_docs/
 site_name: FlowGuard documentation
 site_description: FlowGuard AML platform — technical and product documentation
 site_author: Masarat
-copyright: Copyright &copy; Masarat
-
-site_url: !ENV [SITE_URL, "http://127.0.0.1:8000/"]
-repo_url: !ENV [REPO_URL, ""]
+site_url: https://anstwechy.github.io/mitf_aml_public_docs/
+repo_url: https://github.com/anstwechy/mitf_aml_public_docs
+repo_name: GitHub
 edit_uri: edit/main/docs/
+copyright: >
+  Masarat &middot; <a href="https://masarat.ly/">masarat.ly</a>
 
 docs_dir: docs
 site_dir: site
@@ -75,6 +77,7 @@ theme:
     - navigation.sections
     - navigation.path
     - navigation.top
+    - navigation.footer
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.indexes
@@ -82,6 +85,7 @@ theme:
     - search.highlight
     - search.share
     - content.code.copy
+    - content.action.edit
     - content.tooltips
     - toc.follow
 
@@ -91,7 +95,11 @@ markdown_extensions:
   - admonition
   - toc:
       permalink: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
@@ -106,8 +114,14 @@ markdown_extensions:
       pygments_lang_class: true
 
 extra:
+  generator: false
   site_description: |
     Diátaxis-structured reference for the FlowGuard AML platform — developers, runbooks, bank stakeholders, and integrations.
+  social:
+    - icon: fontawesome/solid/globe
+      link: https://masarat.ly/
+    - icon: fontawesome/brands/github
+      link: https://github.com/anstwechy/mitf_aml_public_docs
 
 extra_css:
   - stylesheets/extra.css

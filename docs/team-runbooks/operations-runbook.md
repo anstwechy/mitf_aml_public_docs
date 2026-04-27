@@ -2,6 +2,24 @@
 
 This runbook is for the operations team responsible for day-to-day reliability, observability, and incident handling. **Who runs it:** in production, **Masarat** operates the FlowGuard platform; this document describes the stack and triage **behaviour**—see [masarat.md](../masarat.md).
 
+## Operations and triage (overview)
+
+Use this as a **mental model** for day-2: health checks first, then infrastructure, then application queues and logs.
+
+```mermaid
+flowchart TD
+    A[Alert or routine check] --> B{check-health / endpoints OK?}
+    B -->|No| C[See §4 Health — deployment scripts]
+    C --> D{Infra: DB Redis Rabbit?}
+    D -->|Issue| E[Stabilize infra / broker]
+    B -->|Yes| F{Queue depth / error rate OK?}
+    F -->|No| G[Transaction queue runbook + logs]
+    F -->|Yes| H[Grafana Loki / traces]
+    G --> I[DLQ / routing / bank code triage]
+    H --> J[End or escalate to release engineer]
+    E --> F
+```
+
 ## 1) System Overview
 
 Core infrastructure services are defined in:

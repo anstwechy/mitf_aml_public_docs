@@ -2,6 +2,52 @@
 
 Operational guidance for RabbitMQ-backed transaction ingestion in FlowGuard.Analyzer (`TransactionQueue`, MassTransit consumer, DLQ). **Platform operator:** **Masarat** runs the **broker binding and consumer** configuration in production; this runbook is the engineering reference for topology and triage.
 
+## Message flow (happy path)
+
+The diagram below is the **nominal** path: a producer publishes a `TransactionQueueMessage` envelope; the analyzer consumer validates the tenant `BankCode`, runs analysis, and acknowledges the message.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant P as Producer (wallet / bridge)
+    participant X as Exchange aml.transactions
+    participant Q as Queue aml.transactions.BankCode
+    participant MT as MassTransit consumer
+    participant A as Analyzer (IAnalyzerService)
+
+    P->>X: Publish TransactionQueueMessage (JSON, camelCase)
+    Note over P,X: Routing key transaction.{BankCode}
+    X->>Q: Route to bound queue
+    Q->>MT: Deliver message
+    MT->>MT: Validate envelope BankCode vs TenantConfig
+    MT->>A: Analyze transaction
+    A-->>MT: Risk score, alerts, persistence
+    MT-->>Q: ACK success
+```
+
+## Retry, NACK, and dead-letter
+
+On **transient** failures, MassTransit retries with exponential backoff (`TransactionQueue:RetryDelayMs`). After **`MaxRetryAttempts`**, messages move to the **DLQ** `aml.transactions.dlq.{BankCode}`. **Validation / poison** paths (e.g. bank mismatch) are configured not to retry indefinitely—confirm behaviour in logs and DLQ policy for your release.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant MT as Consumer
+    participant R as Retry policy
+    participant Q as Queue aml.transactions.BankCode
+    participant DLQ as DLQ aml.transactions.dlq.BankCode
+
+    MT->>MT: Processing error
+    alt Transient (retriable)
+        MT->>R: Backoff schedule
+        R->>Q: Re-deliver
+    else Exhausted retries
+        MT->>DLQ: Move to dead-letter
+    else Validation / poison (policy)
+        MT->>DLQ: Per configuration
+    end
+```
+
 ## Components
 
 | Component | Role |

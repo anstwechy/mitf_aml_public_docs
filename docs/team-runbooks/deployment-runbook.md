@@ -2,6 +2,27 @@
 
 This runbook is for release and platform engineers deploying the AML System. **Default model:** **Masarat** leads production **releases and rollbacks**; bank staff may use the same procedures in **UAT** or as contractually shared—see [masarat.md](../masarat.md).
 
+## Release sequence (high level)
+
+**Compose / Swarm** details vary by host; the sequence below is the **logical** order for a rolling update. Always run `check-health` after changes.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant E as Engineer
+    participant D as deploy script
+    participant I as Infra stack
+    participant A as App stack
+
+    E->>D: start / update (compose or swarm)
+    D->>I: Start or refresh infra (DB, broker, etc.)
+    I-->>D: Infra up
+    D->>A: Start or rolling update apps
+    A-->>D: Services running
+    E->>D: check-health (detailed)
+    D-->>E: Per-service health / readiness
+```
+
 ## 1) Deployment Modes
 
 ### Compose mode (single host / simpler operations)
