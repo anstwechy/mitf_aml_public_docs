@@ -1,4 +1,4 @@
-# FlowGuard public docs (matches masarat public_online_payment_docs layout).
+# FlowGuard public docs — MkDocs Material theme aligned with MITF Wallet (teal / emerald + coral accent).
 # Local: pip install -r requirements.txt && mkdocs serve
 # Site:  https://anstwechy.github.io/mitf_aml_public_docs/
 site_name: FlowGuard documentation
@@ -53,33 +53,31 @@ nav:
 
 theme:
   name: material
+  custom_dir: overrides
+  logo: assets/masarat-logo.png
+  favicon: assets/favicon.png
   language: en
   font:
-    text: DM Sans
-    code: JetBrains Mono
+    text: Inter
+    code: Fira Code
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: deep purple
-      accent: amber
+    - scheme: slate
+      primary: teal
+      accent: deep orange
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: deep purple
-      accent: amber
+        name: Switch to light mode
+    - scheme: default
+      primary: green
+      accent: deep orange
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to dark mode
   features:
-    # Sidebar-first: no top tab bar; nested nav in the drawer reads as a tree
-    - navigation.expand
-    - navigation.sections
+    - navigation.tracking
     - navigation.path
     - navigation.top
     - navigation.footer
-    - navigation.indexes
     - navigation.instant
     - navigation.instant.progress
     - search.suggest
@@ -117,6 +115,7 @@ markdown_extensions:
       pygments_lang_class: true
 
 extra:
+  masarat_logo_dark: assets/masarat-logo-dark.png
   generator: false
   site_description: |
     Diátaxis-structured reference for the FlowGuard AML platform — developers, runbooks, bank stakeholders, and integrations.

@@ -1,0 +1,22 @@
+{#-
+  Masarat: colored logo (light) + white logo (dark). Theme keys in mkdocs.yml + extra.masarat_logo_dark.
+-#}
+{% if config.theme.logo %}
+  <img
+    class="flow-logo flow-logo--light"
+    src="{{ config.theme.logo | url }}"
+    alt="{{ config.site_name | e }}"
+    loading="eager"
+    decoding="async"
+  >
+  <img
+    class="flow-logo flow-logo--dark"
+    src="{{ config.extra.masarat_logo_dark | url }}"
+    alt="{{ config.site_name | e }}"
+    loading="eager"
+    decoding="async"
+  >
+{% else %}
+  {% set icon = config.theme.icon.logo or "material/library" %}
+  {% include ".icons/" ~ icon ~ ".svg" %}
+{% endif %}
